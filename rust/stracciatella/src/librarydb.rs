@@ -113,6 +113,11 @@ impl LibraryDB {
     pub fn open_file(&self, path: &str) -> io::Result<LibraryFile> {
         self.locked().open_file(path)
     }
+
+    /// Lists all file paths currently contained in the library db.
+    pub fn list_files(&self) -> Vec<String> {
+        self.locked().list_files()
+    }
 }
 
 impl LibraryDBInner {
@@ -145,6 +150,19 @@ impl LibraryDBInner {
             }
         }
         Err(io::ErrorKind::NotFound.into())
+    }
+
+    /// Lists all file paths currently contained in the library db.
+    pub fn list_files(&self) -> Vec<String> {
+        let mut files = vec![];
+        for arc_library in &self.arc_libraries {
+            let library = arc_library.read().unwrap();
+            let base_path = &library.base_path;
+            for entry in &library.entries {
+                files.push(format!("{}{}", base_path, entry.file_path));
+            }
+        }
+        files
     }
 }
 

@@ -15,6 +15,11 @@ name = "ja2-resource-pack"
 path = "src/bin_resource_pack.rs"
 required-features = ["bin"]
 
+[[bin]]
+name = "ja2-asset-tool"
+path = "src/bin/ja2_asset_tool/main.rs"
+required-features = ["bin"]
+
 [dependencies]
 getopts = "0.2.15"
 libc = "0.2"
