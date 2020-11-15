@@ -11,18 +11,19 @@ jobs:
     
     steps:
     - name: Checkout nightly
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
       with:
         ref: nightly
+        persist-credentials: false
     - name: Update nightly
       run: |
         # user and email are required for pushing
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "madlab-bot@ja2-stracciatella.github.io"
+        git config --local user.name "Madlab's Bot"
         # fast forward to current master
         git merge origin/master --ff-only
     - name: Push nightly
       uses: ad-m/github-push-action@master
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.BOT_GITHUB_TOKEN }}
         branch: nightly
