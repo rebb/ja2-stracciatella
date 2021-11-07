@@ -227,7 +227,7 @@
 
 
 static SGPVObject* guiMainTradeScreenImage;
-static SGPVSurface* guiCornerWhereTacticalIsStillSeenImage; // This image is for where the corner of tactical is still seen through the shop keeper interface
+static SGPVSurface* guiTacticalImage; // This image is for where the corner of tactical is still seen through the shop keeper interface
 
 static BOOLEAN gfSKIScreenEntry = TRUE;
 static BOOLEAN gfSKIScreenExit  = FALSE;
@@ -550,7 +550,7 @@ static void EnterShopKeeperInterface(void)
 	AssertMsg(CanMercInteractWithSelectedShopkeeper(GetSelectedMan()), "Selected merc can't interact with shopkeeper.  Send save AM-1");
 
 	// Create a video surface to blt corner of the tactical screen that still shines through
-	guiCornerWhereTacticalIsStillSeenImage = AddVideoSurface(SKI_TACTICAL_BACKGROUND_START_WIDTH, SKI_TACTICAL_BACKGROUND_START_HEIGHT, PIXEL_DEPTH);
+	guiTacticalImage = AddVideoSurface( SCREEN_WIDTH, SCREEN_HEIGHT, PIXEL_DEPTH );
 
 	//Clear out all the save background rects
 	EmptyBackgroundRects( );
@@ -627,7 +627,7 @@ static void EnterShopKeeperInterface(void)
 	guiSKI_DoneButton = MakeButton(guiSKI_DoneButtonImage, SKI_Text[SKI_TEXT_DONE], SKI_DONE_BUTTON_X,  MSYS_PRIORITY_HIGH + 10, BtnSKI_DoneButtonCallback, SkiMessageBoxText[SKI_DONE_BUTTON_HELP_TEXT]);
 
 	//Blanket the entire screen
-	MSYS_DefineRegion(&gSKI_EntireScreenMouseRegions, 0, 0, SCREEN_WIDTH, 339, MSYS_PRIORITY_HIGH - 2, CURSOR_NORMAL, MSYS_NO_CALLBACK, MSYS_NO_CALLBACK);
+	MSYS_DefineRegion( &gSKI_EntireScreenMouseRegions, 0, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y, MSYS_PRIORITY_HIGH - 2, CURSOR_NORMAL, MSYS_NO_CALLBACK, MSYS_NO_CALLBACK);
 
 	//Create the mouse regions for the inventory slot
 	CreateSkiInventorySlotMouseRegions( );
@@ -738,10 +738,12 @@ static void EnterShopKeeperInterface(void)
 
 
 	//Region to allow the user to drop items to the ground
-	MSYS_DefineRegion(&gArmsDealersDropItemToGroundMouseRegions, SKI_DROP_ITEM_TO_GROUND_START_X,
-				SKI_DROP_ITEM_TO_GROUND_START_Y, SCREEN_WIDTH, 339, MSYS_PRIORITY_HIGH,
-				CURSOR_NORMAL, SelectArmsDealersDropItemToGroundMovementRegionCallBack,
-				SelectArmsDealersDropItemToGroundRegionCallBack);
+	MSYS_DefineRegion(
+		&gArmsDealersDropItemToGroundMouseRegions,
+		SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y,
+		MSYS_PRIORITY_HIGH, CURSOR_NORMAL,
+		SelectArmsDealersDropItemToGroundMovementRegionCallBack, SelectArmsDealersDropItemToGroundRegionCallBack
+	);
 	//			CURSOR_NORMAL, MSYS_NO_CALLBACK, SelectArmsDealersDropItemToGroundRegionCallBack );
 
 	gfSkiDisplayDropItemToGroundText = FALSE;
@@ -795,7 +797,7 @@ static void ExitShopKeeperInterface(void)
 	//Delete the main shopkeep background
 	DeleteVideoObject(guiMainTradeScreenImage);
 	DeleteVideoObject(guiItemCrossOut);
-	DeleteVideoSurface(guiCornerWhereTacticalIsStillSeenImage);
+	DeleteVideoSurface(guiTacticalImage);
 
 	ShutUpShopKeeper();
 
@@ -1017,14 +1019,12 @@ static void RenderShopKeeperInterface(void)
 	if( gfRenderScreenOnNextLoop )
 	{
 	//	BlitBufferToBuffer(FRAME_BUFFER, guiCornerWhereTacticalIsStillSeenImage, SKI_TACTICAL_BACKGROUND_START_X, SKI_TACTICAL_BACKGROUND_START_Y, SKI_TACTICAL_BACKGROUND_START_WIDTH, SKI_TACTICAL_BACKGROUND_START_HEIGHT);
-		SGPBox const SrcRect =
-		{
-			SKI_TACTICAL_BACKGROUND_START_X,
-			SKI_TACTICAL_BACKGROUND_START_Y,
-			SKI_TACTICAL_BACKGROUND_START_WIDTH,
-			SKI_TACTICAL_BACKGROUND_START_HEIGHT
+		const SGPBox SrcRect = {
+			0, 0,
+			SCREEN_WIDTH, SCREEN_HEIGHT
 		};
-		BltVideoSurface(guiCornerWhereTacticalIsStillSeenImage, guiSAVEBUFFER, 0, 0, &SrcRect);
+
+		BltVideoSurface( guiTacticalImage, FRAME_BUFFER, 0, 0, &SrcRect );
 
 		gfRenderScreenOnNextLoop = FALSE;
 	}
@@ -1060,7 +1060,20 @@ static void RestoreTacticalBackGround(void)
 
 	//BlitBufferToBuffer(guiCornerWhereTacticalIsStillSeenImage, FRAME_BUFFER, SKI_TACTICAL_BACKGROUND_START_X, SKI_TACTICAL_BACKGROUND_START_Y, SKI_TACTICAL_BACKGROUND_START_WIDTH, SKI_TACTICAL_BACKGROUND_START_HEIGHT);
 
-	BltVideoSurface(FRAME_BUFFER, guiCornerWhereTacticalIsStillSeenImage, SKI_TACTICAL_BACKGROUND_START_X, SKI_TACTICAL_BACKGROUND_START_Y, NULL);
+	const SGPBox redrawRects[] = {
+		{
+			SKI_TACTICAL_BACKGROUND_START_X, SKI_TACTICAL_BACKGROUND_START_Y,
+			SCREEN_WIDTH - SKI_TACTICAL_BACKGROUND_START_X, SKI_TACTICAL_BACKGROUND_START_HEIGHT
+		},
+		{
+			0, SKI_TACTICAL_BACKGROUND_START_HEIGHT,
+			SCREEN_WIDTH, SCREEN_HEIGHT - SKI_TACTICAL_BACKGROUND_START_HEIGHT - 140
+		}
+	};
+
+	for( const SGPBox &curRect : redrawRects ) {
+		BltVideoSurface( FRAME_BUFFER, guiTacticalImage, curRect.x, curRect.y, &curRect );
+	}
 
 	InvalidateScreen();
 }
