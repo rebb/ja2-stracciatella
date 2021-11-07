@@ -738,10 +738,12 @@ static void EnterShopKeeperInterface(void)
 
 
 	//Region to allow the user to drop items to the ground
-	MSYS_DefineRegion(&gArmsDealersDropItemToGroundMouseRegions, SKI_DROP_ITEM_TO_GROUND_START_X,
-				SKI_DROP_ITEM_TO_GROUND_START_Y, SCREEN_WIDTH, 339, MSYS_PRIORITY_HIGH,
-				CURSOR_NORMAL, SelectArmsDealersDropItemToGroundMovementRegionCallBack,
-				SelectArmsDealersDropItemToGroundRegionCallBack);
+	MSYS_DefineRegion(
+		&gArmsDealersDropItemToGroundMouseRegions,
+		SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y,
+		MSYS_PRIORITY_HIGH, CURSOR_NORMAL,
+		SelectArmsDealersDropItemToGroundMovementRegionCallBack, SelectArmsDealersDropItemToGroundRegionCallBack
+	);
 	//			CURSOR_NORMAL, MSYS_NO_CALLBACK, SelectArmsDealersDropItemToGroundRegionCallBack );
 
 	gfSkiDisplayDropItemToGroundText = FALSE;
