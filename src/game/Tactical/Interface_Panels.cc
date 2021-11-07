@@ -3639,6 +3639,7 @@ void ShopKeeperInterface_SetSMpanelButtonsState(bool const enabled)
 	EnableButton( iSMPanelButtons[ OPTIONS_BUTTON ], enabled );
 
 	//Make sure the mapscreen button is disabled
+	EnableButton( iSMPanelButtons[ SM_DONE_BUTTON ], enabled );
 	EnableButton( iSMPanelButtons[ SM_MAP_SCREEN_BUTTON ], enabled );
 
 	EnableButton( iSMPanelButtons[ STANCEUP_BUTTON ], enabled );
