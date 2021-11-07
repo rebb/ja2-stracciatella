@@ -1949,6 +1949,11 @@ static void RenderDynamicWorld(void)
 
 	SaveBackgroundRects();
 
+	// this fixes obscured item highlights, and also disappearing obscureds when merc light overlaps them
+	sLevelIDs[0] = RENDER_STATIC_STRUCTS;
+	//sLevelIDs[1] = RENDER_STATIC_ONROOF;
+	RenderTiles(TILES_OBSCURED, gsLStartPointX_M, gsLStartPointY_M, gsLStartPointX_S, gsLStartPointY_S, gsLEndXS, gsLEndYS, 1, sLevelIDs);
+
 	sLevelIDs[0] = RENDER_DYNAMIC_OBJECTS;
 	sLevelIDs[1] = RENDER_DYNAMIC_SHADOWS;
 	sLevelIDs[2] = RENDER_DYNAMIC_STRUCT_MERCS;
