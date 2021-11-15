@@ -71,6 +71,7 @@
 #include <string_theory/format>
 #include <string_theory/string>
 
+#include <vector>
 #include <algorithm>
 
 #define SKI_BUTTON_FONT				MILITARYFONT1//FONT14ARIAL
@@ -388,7 +389,7 @@ static MOUSE_REGION gArmsDealersFaceMouseRegions;
 
 
 //Region to allow the user to drop items to the ground
-static MOUSE_REGION gArmsDealersDropItemToGroundMouseRegions;
+static std::vector<MOUSE_REGION> gArmsDealersDropItemToGroundMouseRegions;
 
 //
 // screen handler functions
@@ -736,15 +737,23 @@ static void EnterShopKeeperInterface(void)
 
 	pShopKeeperItemDescObject = NULL;
 
+	// Regions to allow the user to drop items to the ground
+	const std::vector<SGPRect> itemDropRects = {
+		{ SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y },
+		{ 0, SKI_TACTICAL_BACKGROUND_START_HEIGHT, SKI_DROP_ITEM_TO_GROUND_START_X, INV_INTERFACE_START_Y }
+	};
 
-	//Region to allow the user to drop items to the ground
-	MSYS_DefineRegion(
-		&gArmsDealersDropItemToGroundMouseRegions,
-		SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y,
-		MSYS_PRIORITY_HIGH, CURSOR_NORMAL,
-		SelectArmsDealersDropItemToGroundMovementRegionCallBack, SelectArmsDealersDropItemToGroundRegionCallBack
-	);
-	//			CURSOR_NORMAL, MSYS_NO_CALLBACK, SelectArmsDealersDropItemToGroundRegionCallBack );
+	gArmsDealersDropItemToGroundMouseRegions.resize( itemDropRects.size());
+
+	for( int i = 0; i < itemDropRects.size(); ++i ) {
+		MSYS_DefineRegion(
+			&gArmsDealersDropItemToGroundMouseRegions[i],
+			itemDropRects[i].iLeft, itemDropRects[i].iTop, itemDropRects[i].iRight, itemDropRects[i].iBottom,
+			MSYS_PRIORITY_HIGH, CURSOR_NORMAL,
+			SelectArmsDealersDropItemToGroundMovementRegionCallBack, SelectArmsDealersDropItemToGroundRegionCallBack
+		);
+		//			CURSOR_NORMAL, MSYS_NO_CALLBACK, SelectArmsDealersDropItemToGroundRegionCallBack );
+	}	
 
 	gfSkiDisplayDropItemToGroundText = FALSE;
 
@@ -827,7 +836,9 @@ static void ExitShopKeeperInterface(void)
 	MSYS_RemoveRegion( &gArmsDealersFaceMouseRegions );
 
 	//Region to allow the user to drop items to the ground
-	MSYS_RemoveRegion( &gArmsDealersDropItemToGroundMouseRegions );
+	for( auto &curRegion : gArmsDealersDropItemToGroundMouseRegions ) {
+		MSYS_RemoveRegion( &curRegion );
+	}
 
 	//Destroy the mouse regions for the inventory slots
 	DestroySkiInventorySlotMouseRegions( );
@@ -3714,7 +3725,9 @@ void SetSkiCursor( UINT16 usCursor )
 
 		gSMPanelRegion.ChangeCursor(usCursor);
 		gSKI_EntireScreenMouseRegions.ChangeCursor(usCursor);
-		gArmsDealersDropItemToGroundMouseRegions.ChangeCursor(usCursor);
+		for( auto &region : gArmsDealersDropItemToGroundMouseRegions ) {
+			region.ChangeCursor(usCursor);
+		}
 		MSYS_SetCurrentCursor( usCursor );
 
 		//if the item desc window is up
@@ -3764,7 +3777,9 @@ void SetSkiCursor( UINT16 usCursor )
 
 		gSMPanelRegion.ChangeCursor(usCursor);
 		gSKI_EntireScreenMouseRegions.ChangeCursor(usCursor);
-		gArmsDealersDropItemToGroundMouseRegions.ChangeCursor(usCursor);
+		for( auto &region : gArmsDealersDropItemToGroundMouseRegions ) {
+			region.ChangeCursor(usCursor);
+		}
 
 		for( ubCnt=0; ubCnt<SKI_NUM_TRADING_INV_SLOTS; ubCnt++)
 		{
