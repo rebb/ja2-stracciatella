@@ -746,14 +746,20 @@ static void EnterShopKeeperInterface(void)
 	gArmsDealersDropItemToGroundMouseRegions.resize( itemDropRects.size());
 
 	for( int i = 0; i < itemDropRects.size(); ++i ) {
+		const auto
+			&dropRect = itemDropRects[i];
+
+		if( dropRect.iTop >= dropRect.iBottom || dropRect.iLeft >= dropRect.iRight ) {
+			continue;
+		}
+
 		MSYS_DefineRegion(
 			&gArmsDealersDropItemToGroundMouseRegions[i],
-			itemDropRects[i].iLeft, itemDropRects[i].iTop, itemDropRects[i].iRight, itemDropRects[i].iBottom,
+			dropRect.iLeft, dropRect.iTop, dropRect.iRight, dropRect.iBottom,
 			MSYS_PRIORITY_HIGH, CURSOR_NORMAL,
 			SelectArmsDealersDropItemToGroundMovementRegionCallBack, SelectArmsDealersDropItemToGroundRegionCallBack
 		);
-		//			CURSOR_NORMAL, MSYS_NO_CALLBACK, SelectArmsDealersDropItemToGroundRegionCallBack );
-	}	
+	}
 
 	gfSkiDisplayDropItemToGroundText = FALSE;
 
