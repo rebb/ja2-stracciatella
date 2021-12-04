@@ -739,8 +739,8 @@ static void EnterShopKeeperInterface(void)
 
 	// Regions to allow the user to drop items to the ground
 	const std::vector<SGPRect> itemDropRects = {
-		{ SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, INV_INTERFACE_START_Y },
-		{ 0, SKI_TACTICAL_BACKGROUND_START_HEIGHT, SKI_DROP_ITEM_TO_GROUND_START_X, INV_INTERFACE_START_Y }
+		{ SKI_DROP_ITEM_TO_GROUND_START_X, 0, SCREEN_WIDTH, SKI_TACTICAL_BACKGROUND_START_HEIGHT - 1 },
+		{ 0, SKI_TACTICAL_BACKGROUND_START_HEIGHT, SCREEN_WIDTH, INV_INTERFACE_START_Y }
 	};
 
 	gArmsDealersDropItemToGroundMouseRegions.resize( itemDropRects.size());
